@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bupt.service.dao.bill.BillMapper">
+  <resultMap id="BaseResultMap" type="com.bupt.service.bean.bill.Bill">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="consume_type" jdbcType="VARCHAR" property="consumeType" />
+    <result column="money" jdbcType="DECIMAL" property="money" />
+    <result column="consume_info" jdbcType="VARCHAR" property="consumeInfo" />
+    <result column="consume_create" jdbcType="TIMESTAMP" property="consumeCreate" />
+    <result column="consume_update" jdbcType="TIMESTAMP" property="consumeUpdate" />
+    <result column="year" jdbcType="INTEGER" property="year" />
+    <result column="month" jdbcType="INTEGER" property="month" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, consume_type, money, consume_info, consume_create, consume_update, year, month
+  </sql>
+
+  <sql id="pageLimit">
+    <if
+            test="startIndex != null and startIndex >= 0 and pageSize != null and pageSize > 0">
+      limit #{startIndex}, #{pageSize}
+    </if>
+  </sql>
+
+
+
+  <select id="queryPageListByYearMonth" resultMap="BaseResultMap" >
+    select
+    <include refid="Base_Column_List"/>
+    from tb_bill where year = #{year} and month = #{month}
+    order by consume_update desc
+    <include refid="pageLimit"/>
+  </select>
+
+  <select id="queryCountByYearMonth" resultType="java.lang.Long">
+    SELECT count(*)
+    FROM tb_bill where year = #{year} and month = #{month}
+  </select>
+
+
+
+  <delete id="batchDelete" parameterType="java.util.List">
+    delete from tb_bill where id in
+    <foreach collection="list" item="item" index="no" open="("
+             separator="," close=")">
+      #{item}
+    </foreach>
+  </delete>
+
+  <select id="getChartsBillYearMonth" resultType="java.util.Map">
+    SELECT consume_type as type, SUM(money) as count
+    FROM tb_bill where year = #{year} and month = #{month} group by consume_type
+  </select>
+
+  <select id="getChartsBillYear" resultType="java.util.Map">
+    SELECT month, SUM(money) as count
+    FROM tb_bill where year = #{year} group by month
+  </select>
+
+
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from tb_bill
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from tb_bill
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.bupt.service.bean.bill.Bill">
+    insert into tb_bill (id, consume_type, money,
+      consume_info, consume_create, consume_update,
+      year, month)
+    values (#{id,jdbcType=BIGINT}, #{consumeType,jdbcType=VARCHAR}, #{money,jdbcType=DECIMAL},
+      #{consumeInfo,jdbcType=VARCHAR}, #{consumeCreate,jdbcType=TIMESTAMP}, #{consumeUpdate,jdbcType=TIMESTAMP},
+      #{year,jdbcType=INTEGER}, #{month,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="com.bupt.service.bean.bill.Bill">
+    insert into tb_bill
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="consumeType != null">
+        consume_type,
+      </if>
+      <if test="money != null">
+        money,
+      </if>
+      <if test="consumeInfo != null">
+        consume_info,
+      </if>
+      <if test="consumeCreate != null">
+        consume_create,
+      </if>
+      <if test="consumeUpdate != null">
+        consume_update,
+      </if>
+      <if test="year != null">
+        year,
+      </if>
+      <if test="month != null">
+        month,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="consumeType != null">
+        #{consumeType,jdbcType=VARCHAR},
+      </if>
+      <if test="money != null">
+        #{money,jdbcType=DECIMAL},
+      </if>
+      <if test="consumeInfo != null">
+        #{consumeInfo,jdbcType=VARCHAR},
+      </if>
+      <if test="consumeCreate != null">
+        #{consumeCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="consumeUpdate != null">
+        #{consumeUpdate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="year != null">
+        #{year,jdbcType=INTEGER},
+      </if>
+      <if test="month != null">
+        #{month,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.bupt.service.bean.bill.Bill">
+    update tb_bill
+    <set>
+      <if test="consumeType != null">
+        consume_type = #{consumeType,jdbcType=VARCHAR},
+      </if>
+      <if test="money != null">
+        money = #{money,jdbcType=DECIMAL},
+      </if>
+      <if test="consumeInfo != null">
+        consume_info = #{consumeInfo,jdbcType=VARCHAR},
+      </if>
+      <if test="consumeCreate != null">
+        consume_create = #{consumeCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="consumeUpdate != null">
+        consume_update = #{consumeUpdate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="year != null">
+        year = #{year,jdbcType=INTEGER},
+      </if>
+      <if test="month != null">
+        month = #{month,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.bupt.service.bean.bill.Bill">
+    update tb_bill
+    set consume_type = #{consumeType,jdbcType=VARCHAR},
+      money = #{money,jdbcType=DECIMAL},
+      consume_info = #{consumeInfo,jdbcType=VARCHAR},
+      consume_create = #{consumeCreate,jdbcType=TIMESTAMP},
+      consume_update = #{consumeUpdate,jdbcType=TIMESTAMP},
+      year = #{year,jdbcType=INTEGER},
+      month = #{month,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>
